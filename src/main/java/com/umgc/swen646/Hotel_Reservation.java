@@ -21,15 +21,21 @@ public class Hotel_Reservation extends Reservation {
 
 
 
+    // TODO:  Implement Read/Write XML method
+    public void XMLHotelReader(){
+        // TODO: add switch case to determine extra attributes including Kitchenette, Floors, etc.
+    }
 
+
+    public Hotel_Reservation(String accountNumber, String reservationNumber, String physicalAddress, String mailingAddress, Date reservationStart, int nights, int beds, int bedrooms, int bathrooms, double squareFootage, ReservationStatus status, String reservationType, boolean hasKitchenette) {
+        super(accountNumber, reservationNumber, physicalAddress, mailingAddress, reservationStart, nights, beds, bedrooms, bathrooms, squareFootage, status, reservationType);
+        this.hasKitchenette = hasKitchenette;
+    }
 
     /**
      * Constructor for the reservation type Hotel com.umgc.swen646.Reservation
      */
-    public Hotel_Reservation(int id, String accountNumber, String reservationNumber, String physicalAddress, String mailingAddress, Date reservationStart, int nights, int beds, int bedrooms, int bathrooms, double squareFootage, ReservationStatus status, String reservationType, boolean hasKitchenette) {
-        super(id, accountNumber, reservationNumber, physicalAddress, mailingAddress, reservationStart, nights, beds, bedrooms, bathrooms, squareFootage, status, reservationType);
-        this.hasKitchenette = hasKitchenette;
-    }
+
 
     public Hotel_Reservation clone() throws CloneNotSupportedException {
         Hotel_Reservation hotelReservation = (Hotel_Reservation) super.clone();
@@ -70,16 +76,14 @@ public class Hotel_Reservation extends Reservation {
 
     /**
      *  TOSTRING
-     *  * Converts the Hotel com.umgc.swen646.Reservation object to user readable text, overrides com.umgc.swen646.Reservation toString method and adds
-     *  * Hotel com.umgc.swen646.Reservation attributes to com.umgc.swen646.Reservation's toString using super.toString + subsequent attributes
+     *  * Overrides Reservation's toString & adds attributes included in a Hotel Reservation
      * */
     @Override
     public String toString() {
-        return "com.umgc.swen646.Hotel_Reservation{" + super.toString() +
-                "hasKitchenette=" + hasKitchenette +
-                ", kitchenetteFee=" + kitchenetteFee +
-                ", flatFee=" + flatFee +
-                ", id=" + id +
-                '}';
+        return "<hotel>" + super.toString() +
+                "<hasKitchenette>" + hasKitchenette + "</hasKitchenette>" +
+                "<kitchenetteFee>" + kitchenetteFee + "</kitchenetteFee>" +
+                "<flatFee>" + flatFee + "</flatFee>" +
+                "</hotel>";
     }
 }
