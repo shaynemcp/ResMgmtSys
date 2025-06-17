@@ -13,7 +13,6 @@ public class Main {
 
         // Create a sample com.umgc.swen646.Hotel_Reservation
         Hotel_Reservation sampleHotelReservation = new Hotel_Reservation(
-                101, // id
                 "AC-123456789", // accountNumber
                 "RES-987654321", // reservationNumber
                 "123 Main St, Anytown, USA", // physicalAddress
@@ -29,10 +28,17 @@ public class Main {
                 true // hasKitchenette
         );
 
-        System.out.println("Sample Hotel com.umgc.swen646.Reservation Created:");
-        System.out.println(sampleHotelReservation);
-        System.out.println("Total Price: $" + sampleHotelReservation.totalPrice());
-        System.out.println("Price Per Night: $" + sampleHotelReservation.pricePerNight());
+        try {
+            Hotel_Reservation clone = sampleHotelReservation.clone();
+            System.out.println("Sample Hotel Reservation Created:");
+            System.out.println(sampleHotelReservation);
+            System.out.println("Total Price: $" + sampleHotelReservation.totalPrice());
+            System.out.println("Price Per Night: $" + sampleHotelReservation.pricePerNight());
+        } catch (CloneNotSupportedException e) {
+            throw new RuntimeException(e);
+        }
+
+
 
     }
 }

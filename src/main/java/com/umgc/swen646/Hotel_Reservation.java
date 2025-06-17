@@ -27,8 +27,11 @@ public class Hotel_Reservation extends Reservation {
     }
 
 
-    public Hotel_Reservation(String accountNumber, String reservationNumber, String physicalAddress, String mailingAddress, Date reservationStart, int nights, int beds, int bedrooms, int bathrooms, double squareFootage, ReservationStatus status, String reservationType, boolean hasKitchenette) {
-        super(accountNumber, reservationNumber, physicalAddress, mailingAddress, reservationStart, nights, beds, bedrooms, bathrooms, squareFootage, status, reservationType);
+    public Hotel_Reservation(String accountNumber, String reservationNumber, String physicalAddress, String mailingAddress,
+                             Date reservationStart, int nights, int beds, int bedrooms, int bathrooms, double squareFootage,
+                             ReservationStatus status, String reservationType, boolean hasKitchenette) {
+        super(accountNumber, reservationNumber, physicalAddress, mailingAddress, reservationStart, nights, beds, bedrooms,
+                bathrooms, squareFootage, status, reservationType);
         this.hasKitchenette = hasKitchenette;
     }
 
@@ -38,8 +41,11 @@ public class Hotel_Reservation extends Reservation {
 
 
     public Hotel_Reservation clone() throws CloneNotSupportedException {
-        Hotel_Reservation hotelReservation = (Hotel_Reservation) super.clone();
-        return hotelReservation;    }
+        Hotel_Reservation cloneRes = new Hotel_Reservation(this.getAccountNumber(),this.getReservationNumber(),
+                this.getPhysicalAddress(), this.getMailingAddress(), this.getReservationStart(), this.getNights(), this.getBeds(),
+        this.getBedrooms(), this.getBathrooms(), this.getSquareFootage(), this.getStatus(), this.getReservationType(),
+        this.isHasKitchenette());
+        return cloneRes;    }
     /**
      * Calculates the sum of a Hotel com.umgc.swen646.Reservation based on base fee & add-ons per night
      */

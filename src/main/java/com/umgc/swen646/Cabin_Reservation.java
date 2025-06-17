@@ -7,7 +7,7 @@ import java.util.*;
  */
 public class Cabin_Reservation extends Reservation {
     public Cabin_Reservation(int id, String accountNumber, String reservationNumber, String physicalAddress, String mailingAddress, Date reservationStart, int nights, int beds, int bedrooms, int bathrooms, double squareFootage, ReservationStatus status, String reservationType, boolean hasKitchen, boolean hasLoft) {
-        super(id, accountNumber, reservationNumber, physicalAddress, mailingAddress, reservationStart, nights, beds, bedrooms, bathrooms, squareFootage, status, reservationType);
+        super(accountNumber, reservationNumber, physicalAddress, mailingAddress, reservationStart, nights, beds, bedrooms, bathrooms, squareFootage, status, reservationType);
         this.hasKitchen = hasKitchen;
         this.hasLoft = hasLoft;
     }

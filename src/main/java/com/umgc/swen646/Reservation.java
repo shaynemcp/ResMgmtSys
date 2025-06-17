@@ -5,7 +5,7 @@ import java.io.*;
 import java.util.*;
 
 /**
- * Represents an abstract com.umgc.swen646.Reservation for a specific trip.
+ * Represents an abstract Reservation for a specific trip.
  * This class provides the structure and methods required to manage a reservation.
  */
 public abstract class Reservation {
@@ -15,14 +15,16 @@ public abstract class Reservation {
      private final double sqFtFee;
 
      /**
-     * The base price of any com.umgc.swen646.Reservation
+     * The base price of any Reservation
       */
      private final double basePrice;
 
     /**
      * Default constructor, typically used for creating an instance of a subclass.
      */
-    public Reservation(String accountNumber, String reservationNumber, String physicalAddress, String mailingAddress, Date reservationStart, int nights, int beds, int bedrooms, int bathrooms, double squareFootage, ReservationStatus status, String reservationType) {
+    public Reservation(String accountNumber, String reservationNumber, String physicalAddress, String mailingAddress,
+                       Date reservationStart, int nights, int beds, int bedrooms, int bathrooms, double squareFootage,
+                       ReservationStatus status, String reservationType) {
         this.accountNumber = accountNumber;
         this.reservationNumber = reservationNumber;
         this.physicalAddress = physicalAddress;
@@ -40,7 +42,7 @@ public abstract class Reservation {
     }
 
     /**
-     * com.umgc.swen646.Account number associated with the user who made the reservation.
+     * Account number associated with the user who made the reservation.
      */
     private String accountNumber;
 
@@ -96,19 +98,19 @@ public abstract class Reservation {
     private ReservationStatus status;
 
 
-    /**Differentiates between Hotel, House or Cabin com.umgc.swen646.Reservation types*/
+    /**Differentiates between Hotel, House or Cabin Reservation types*/
     private String reservationType;
 
 
 //     Read all reservations from XML file
-//    public List<com.umgc.swen646.Reservation> getAllReservations() {
-//        List<com.umgc.swen646.Reservation> reservations = new ArrayList<>();
+//    public List<Reservation> getAllReservations() {
+//        List<Reservation> reservations = new ArrayList<>();
 //
 //        try {
 //            XMLInputFactory factory = XMLInputFactory.newInstance();
 //            XMLStreamReader reader = factory.createXMLStreamReader(new FileInputStream("sample.xml"));
 //
-//            com.umgc.swen646.Reservation currentReservation = null;
+//            Reservation currentReservation = null;
 //            String currentElement = "";
 //
 //
@@ -157,18 +159,17 @@ public abstract class Reservation {
      * Typically used to retrieve a previously saved reservation.
      */
 
-
     // Load reservation by reservation number
-//    public com.umgc.swen646.Reservation loadReservationByNumber(String reservationNumber) {
-//        List<com.umgc.swen646.Reservation> reservations = getAllReservations();
+//    public Reservation loadReservationByNumber(String reservationNumber) {
+//        List<Reservation> reservations = getAllReservations();
 //        return reservations.stream()
 //                .filter(r -> r.getReservationNumber().equals(reservationNumber))
 //                .findFirst()
 //                .orElse(null);
 //    }
     // Save a new reservation (simplified - adds to existing structure)
-//    public boolean saveNewReservation(com.umgc.swen646.Reservation newReservation) throws XMLStreamException {
-//        List<com.umgc.swen646.Reservation> reservations = getAllReservations();
+//    public boolean saveNewReservation(Reservation newReservation) throws XMLStreamException {
+//        List<Reservation> reservations = getAllReservations();
 //        reservations.add(newReservation);
 //        return saveAllReservations(reservations);
 //    }
@@ -225,7 +226,7 @@ public abstract class Reservation {
     }
     // Return reservations as plain text
 //    public String getReservationsAsText() {
-//        List<com.umgc.swen646.Reservation> reservations = getAllReservations();
+//        List<Reservation> reservations = getAllReservations();
 //        StringBuilder sb = new StringBuilder();
 //
 //        for (int i = 0; i < reservations.size(); i++) {
