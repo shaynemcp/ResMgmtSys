@@ -22,8 +22,7 @@ public abstract class Reservation {
     /**
      * Default constructor, typically used for creating an instance of a subclass.
      */
-    public Reservation(int id, String accountNumber, String reservationNumber, String physicalAddress, String mailingAddress, Date reservationStart, int nights, int beds, int bedrooms, int bathrooms, double squareFootage, ReservationStatus status, String reservationType) {
-        this.id = id;
+    public Reservation(String accountNumber, String reservationNumber, String physicalAddress, String mailingAddress, Date reservationStart, int nights, int beds, int bedrooms, int bathrooms, double squareFootage, ReservationStatus status, String reservationType) {
         this.accountNumber = accountNumber;
         this.reservationNumber = reservationNumber;
         this.physicalAddress = physicalAddress;
@@ -39,11 +38,6 @@ public abstract class Reservation {
         basePrice = 120;
         sqFtFee = 15;
     }
-
-    /**
-     * A unique identifier for the reservation. It should be set upon object creation.
-     */
-    public int id;
 
     /**
      * com.umgc.swen646.Account number associated with the user who made the reservation.
@@ -209,7 +203,6 @@ public abstract class Reservation {
         writer.writeStartElement("reservation");
         writer.writeAttribute("type", reservation.getReservationType());
 
-        writeElement(writer, "id", Integer.toString(reservation.getId()));
         writeElement(writer, "accountNumber", reservation.getAccountNumber());
         writeElement(writer, "reservationNumber", reservation.getReservationNumber());
         writeElement(writer, "physicalAddress", reservation.getPhysicalAddress());
@@ -221,7 +214,6 @@ public abstract class Reservation {
         writeElement(writer, "bathrooms", String.valueOf(reservation.getBathrooms()));
         writeElement(writer, "squareFootage", String.valueOf(reservation.getSquareFootage()));
         writeElement(writer, "status", reservation.getStatus().toString());
-    // TODO: add switch case to determine extra attributes including Kitchenette, Floors, etc.
 
         writer.writeEndElement(); // reservation
     }
@@ -276,10 +268,6 @@ public abstract class Reservation {
     }
 
     /**GETTERS*/
-    public int getId() {
-        return id;
-    }
-
     public String getAccountNumber() {
         return accountNumber;
     }
@@ -337,10 +325,6 @@ public abstract class Reservation {
     }
 
     /**SETTERS*/
-    public void setId(int id) {
-        this.id = id;
-    }
-
     public void setAccountNumber(String accountNumber) {
         this.accountNumber = accountNumber;
     }
@@ -392,29 +376,24 @@ public abstract class Reservation {
     }
 
     /**
-     * Returns a string representation of the reservation, formatted for user-friendly display.
-     *
-     * @return A formatted summary string of the reservation's key details
+     * Returns Reservation details to be used in Read/Write XML methods & saved to permanent Data file
      */
     @Override
     public String toString() {
-        return "com.umgc.swen646.Reservation{" +
-                "sqFtFee=" + sqFtFee +
-                ", basePrice=" + basePrice +
-                ", id=" + id +
-                ", accountNumber='" + accountNumber + '\'' +
-                ", reservationNumber='" + reservationNumber + '\'' +
-                ", physicalAddress='" + physicalAddress + '\'' +
-                ", mailingAddress='" + mailingAddress + '\'' +
-                ", reservationStart=" + reservationStart +
-                ", nights=" + nights +
-                ", beds=" + beds +
-                ", bedrooms=" + bedrooms +
-                ", bathrooms=" + bathrooms +
-                ", squareFootage=" + squareFootage +
-                ", status=" + status +
-                ", reservationType='" + reservationType + '\'' +
-                '}';
+        return "<sqftfee>" + sqFtFee + "</sqftfee>" +
+                "<baseprice>" + basePrice + "</baseprice>" +
+                "<accountNumber>" + accountNumber + "</accountNumber>" +
+                "<reservationNumber>" + reservationNumber + "</reservationNumber>" +
+                "<physicalAddress>" + physicalAddress + "</physicalAddress>" +
+                "<mailingAddress>" + mailingAddress + "</mailingAddress>" +
+                "<reservationStart>" + reservationStart + "</reservationStart>" +
+                "<nights>" + nights + "</nights>" +
+                "<beds>" + beds + "</beds>" +
+                "<bedrooms>" + bedrooms + "</bedrooms>" +
+                "<bathrooms>" + bathrooms + "</bathrooms>" +
+                "<squareFootage>" + squareFootage + "</squareFootage>" +
+                "<status>" + status + "</status>" +
+                "<reservationType>" + reservationType + "</reservationType>";
     }
 }
 
