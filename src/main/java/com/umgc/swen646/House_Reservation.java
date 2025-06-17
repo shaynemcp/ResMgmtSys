@@ -13,7 +13,7 @@ public class House_Reservation extends Reservation {
     private int floors;
 
     public House_Reservation(int id, String accountNumber, String reservationNumber, String physicalAddress, String mailingAddress, Date reservationStart, int nights, int beds, int bedrooms, int bathrooms, double squareFootage, ReservationStatus status, String reservationType, int floors) {
-        super(id, accountNumber, reservationNumber, physicalAddress, mailingAddress, reservationStart, nights, beds, bedrooms, bathrooms, squareFootage, status, reservationType);
+        super(accountNumber, reservationNumber, physicalAddress, mailingAddress, reservationStart, nights, beds, bedrooms, bathrooms, squareFootage, status, reservationType);
         this.floors = floors;
     }
 
@@ -40,10 +40,9 @@ public class House_Reservation extends Reservation {
  * */
     @Override
     public String toString() {
-        return "com.umgc.swen646.House_Reservation{" + super.toString() +
-                "floors=" + floors +
-                ", id=" + id +
-                "} " ;
+        return "<house>" + super.toString() +
+                "<floors>" + floors + "</floors>" +
+                "</house>";
     }
 }
 
