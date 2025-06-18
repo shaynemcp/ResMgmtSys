@@ -39,6 +39,10 @@ public class Main {
         }
 
 
+        Manager manager = new Manager();
+        manager.addAccount(account1);
+        manager.generateXmlFiles();
+
 
     }
 }
