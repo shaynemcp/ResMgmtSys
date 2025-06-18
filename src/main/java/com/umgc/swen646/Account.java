@@ -1,5 +1,6 @@
 package com.umgc.swen646;
 
+import java.io.File;
 import java.util.*;
 
 /**
@@ -8,8 +9,6 @@ import java.util.*;
  * Accounts are updated by a com.umgc.swen646.Manager, and once added cannot be deleted
  */
 public class Account extends Manager {
-
-
 
     public Account(String accountNumber, String mailingAddress, String phoneNumber, String email, List<Reservation> reservations) {
         this.accountNumber = accountNumber;
@@ -51,27 +50,6 @@ public class Account extends Manager {
      * Loads XML/JSON from local file & converts to com.umgc.swen646.Account Object
      */
 //    public Document loadFromFile(String filePath) throws IOException, SAXException, ParserConfigurationException {
-//        // TODO implement here
-//        // Create a DocumentBuilder
-//        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-//        DocumentBuilder builder = factory.newDocumentBuilder();
-//
-//        // Parse the XML file into a Document object
-//        File xmlFile = new File(filePath);
-//        Document document = builder.parse(xmlFile);
-//
-//        // Normalize the document to ensure consistent structure
-//        document.getDocumentElement().normalize();
-//
-//        try {
-//            Document document1 = XMLReader.readXMLFromFile("sample.xml");
-//            // Process the Document object as needed
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//
-//        return document;
-//    }
 
     /**
      * Updates the account to data passed through params to local text file in XML/JSON
@@ -128,12 +106,10 @@ public class Account extends Manager {
      */
     @Override
     public String toString() {
-        return "com.umgc.swen646.Account{" +
-                "accountNumber='" + accountNumber + '\'' +
-                ", mailingAddress='" + mailingAddress + '\'' +
-                ", phoneNumber='" + phoneNumber + '\'' +
-                ", email='" + email + '\'' +
-                ", reservations=" + reservations +
-                '}';
+        return "<accountNumber>" + accountNumber + "</accountNumber>" +
+                "<mailingAddress>" + mailingAddress + "</mailingAddress>" +
+                "<phoneNumber>" + phoneNumber + "</phoneNumber>" +
+                "<email>" + email + "</email>" +
+                "<reservations>" + reservations + "</reservations>";
     }
 }
