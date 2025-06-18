@@ -137,8 +137,7 @@ public class Manager {
         }
         for (Account existingAccount : accounts) {
             if (existingAccount.getAccountNumber().equals(account.getAccountNumber())) {
-                System.out.println("Account with number " + account.getAccountNumber() + " already exists. Not adding duplicate.");
-                return; // Exit method if account already exists
+                throw new SameAccountException(existingAccount.getAccountNumber());
             }
         }
         // If no duplicate is found, add the account to the list
