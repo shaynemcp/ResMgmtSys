@@ -115,8 +115,7 @@ public class Manager {
      */
     public Account getAccount(String accountNumber) {
         if (accountNumber == null || accountNumber.trim().isEmpty()) {
-            System.err.println("Error: Account number cannot be null or empty.");
-            return null;
+            throw new NullPointerException("Error: Account number cannot be null or empty.");
         }
 
         // Iterate through the list to find the account
@@ -133,7 +132,7 @@ public class Manager {
      */
     public void addAccount(Account account) {
         if (account == null) {
-            System.err.println("Error: Cannot add a null account.");
+            throw new NullPointerException("Error: Cannot add a null account.");
         }
         for (Account existingAccount : accounts) {
             if (existingAccount.getAccountNumber().equals(account.getAccountNumber())) {
