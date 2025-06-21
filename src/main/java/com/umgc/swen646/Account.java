@@ -8,7 +8,7 @@ import java.util.*;
  * They hold information in attributes: [mailing address, list of reservations, email address and phone #]
  * Accounts are updated by a com.umgc.swen646.Manager, and once added cannot be deleted
  */
-public class Account extends Manager {
+public class Account{
 
     public Account(String accountNumber, String mailingAddress, String phoneNumber, String email, List<Reservation> reservations) {
         this.accountNumber = accountNumber;

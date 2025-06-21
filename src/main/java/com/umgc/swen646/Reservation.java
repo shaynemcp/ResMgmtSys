@@ -2,6 +2,7 @@ package com.umgc.swen646;
 
 import javax.xml.stream.*;
 import java.io.*;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
@@ -9,6 +10,9 @@ import java.util.*;
  * This class provides the structure and methods required to manage a reservation.
  */
 public abstract class Reservation {
+    // Date formatter for consistent XML output and parsing
+    protected static final SimpleDateFormat DATE_FORMATTER = new SimpleDateFormat("yyyy-MM-dd");
+
     /**
      * If a reservation has a square footage of larger than 900sqft. it will incur a $15 fee
      */
@@ -381,20 +385,21 @@ public abstract class Reservation {
      */
     @Override
     public String toString() {
-        return "<sqftfee>" + sqFtFee + "</sqftfee>" +
-                "<baseprice>" + basePrice + "</baseprice>" +
-                "<accountNumber>" + accountNumber + "</accountNumber>" +
-                "<reservationNumber>" + reservationNumber + "</reservationNumber>" +
-                "<physicalAddress>" + physicalAddress + "</physicalAddress>" +
-                "<mailingAddress>" + mailingAddress + "</mailingAddress>" +
-                "<reservationStart>" + reservationStart + "</reservationStart>" +
-                "<nights>" + nights + "</nights>" +
-                "<beds>" + beds + "</beds>" +
-                "<bedrooms>" + bedrooms + "</bedrooms>" +
-                "<bathrooms>" + bathrooms + "</bathrooms>" +
-                "<squareFootage>" + squareFootage + "</squareFootage>" +
-                "<status>" + status + "</status>" +
-                "<reservationType>" + reservationType + "</reservationType>";
+        // Output common fields as XML fragment
+        return "  <sqFtFee>" + sqFtFee + "</sqFtFee>\n" +
+                "  <basePrice>" + basePrice + "</basePrice>\n" +
+                "  <accountNumber>" + accountNumber + "</accountNumber>\n" +
+                "  <reservationNumber>" + reservationNumber + "</reservationNumber>\n" +
+                "  <physicalAddress>" + physicalAddress + "</physicalAddress>\n" +
+                "  <mailingAddress>" + mailingAddress + "</mailingAddress>\n" +
+                "  <reservationStart>" + DATE_FORMATTER.format(reservationStart) + "</reservationStart>\n" +
+                "  <nights>" + nights + "</nights>\n" +
+                "  <beds>" + beds + "</beds>\n" +
+                "  <bedrooms>" + bedrooms + "</bedrooms>\n" +
+                "  <bathrooms>" + bathrooms + "</bathrooms>\n" +
+                "  <squareFootage>" + squareFootage + "</squareFootage>\n" +
+                "  <status>" + status.name() + "</status>\n" +
+                "  <reservationType>" + reservationType + "</reservationType>\n";
     }
 }
 
