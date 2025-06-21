@@ -1,5 +1,6 @@
 package com.umgc.swen646;
 
+import org.glassfish.jaxb.core.v2.TODO;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -301,7 +302,7 @@ public class Manager {
                         reservationStart, nights, beds, bedrooms, bathrooms, squareFootage,
                         status, reservationType, floors);
             default:
-                System.err.println("  Unknown reservation type (root element): " + rootElementName + " in file: " + resFile.getName());
+                System.out.println(reservationType + " in file: " + resFile.getName());
                 return null;
         }
     }
@@ -405,6 +406,31 @@ public class Manager {
         } else {
             System.out.println("Account " + accountNumber + " not found. Cannot add reservation.");
         }
+    }
+    /** Method to grab a Reservation by accountNumber & reservationNumber*/
+    public Reservation getReservation(String accountNumber, String reservationNumber) {
+        if (accountNumber == null || accountNumber.trim().isEmpty()) {
+            throw new NullPointerException("Account number cannot be null or empty for getReservation operation.");
+        }
+        if (reservationNumber == null || reservationNumber.trim().isEmpty()) {
+            throw new NullPointerException("Reservation number cannot be null or empty for getReservation operation.");
+        }
+
+        Account account = getAccount(accountNumber);
+        if (account == null) {
+            System.out.println("Account " + accountNumber + " not found. Cannot retrieve reservation " + reservationNumber + ".");
+            return null; // Account not found
+        }
+
+        for (Reservation res : account.getReservations()) {
+            if (res.getReservationNumber().equals(reservationNumber)) {
+                System.out.println("Reservation " + reservationNumber + " found for account " + accountNumber + ".");
+                return res; // Reservation found
+            }
+        }
+
+        System.out.println("Reservation " + reservationNumber + " not found for account " + accountNumber + ".");
+        return null; // Reservation not found within the account
     }
 
     /**Creates a new Reservation for a given Account Number & adds to the list of reservation objects */
@@ -579,13 +605,100 @@ public class Manager {
         return false;
     }
 
-    /**
-     * Finds the Reservation with the associated accountNumber & updates the passed params for the Reservation object
-     */
-    public void changeReservation(String accountNumber, Reservation reservation) {
-        // TODO implement here
-    }
+    /** Allows a Reservation's properties to be modified, is */
+    public boolean changeReservation(String accountNumber, Reservation reservation) {
+        //TODO: Modify this method to accept arguments for changing specific Reservation attributes by type
+        if (accountNumber == null || accountNumber.trim().isEmpty()) {
+            throw new NullPointerException("Account number cannot be null or empty for changeReservation operation.");
+        }
+        if (reservation == null) {
+            throw new NullPointerException("New reservation object cannot be null for changeReservation operation.");
+        }
+        if (reservation.getReservationNumber() == null || reservation.getReservationNumber().trim().isEmpty()) {
+            throw new NullPointerException("Reservation number in the new reservation object cannot be null or empty.");
+        }
 
+        Account account = getAccount(accountNumber);
+        if (account == null) {
+            System.out.println("Account " + accountNumber + " not found. Cannot change reservation " + reservation.getReservationNumber() + ".");
+            return false;
+        }
+
+        Reservation existingReservation = null;
+        List<Reservation> accountReservations = account.getReservations();
+        int indexOfExistingReservation = -1;
+
+        for (int i = 0; i < accountReservations.size(); i++) {
+            if (accountReservations.get(i).getReservationNumber().equals(reservation.getReservationNumber())) {
+                existingReservation = accountReservations.get(i);
+                indexOfExistingReservation = i;
+                break;
+            }
+        }
+
+        if (existingReservation == null) {
+            System.out.println("Reservation " + reservation.getReservationNumber() + " not found for account " + accountNumber + ". Cannot change.");
+            return false;
+        }
+
+        //Check conditions for changes (Cancelled, Completed, Past Date) ---
+        String reasonForFailure = null;
+        if (existingReservation.getStatus() == ReservationStatus.CANCELLED) {
+            reasonForFailure = "Reservation is Cancelled.";
+        } else if (existingReservation.getStatus() == ReservationStatus.COMPLETED) {
+            reasonForFailure = "Reservation is Completed.";
+        } else if (existingReservation.getReservationStart().before(new Date())) { // Check if start date is in the past
+            reasonForFailure = "Reservation date is in the past.";
+        }
+
+        if (reasonForFailure != null) {
+            String errorMessage = String.format("Operation: Change Reservation, Account ID: %s, Reservation Number: %s, Reason: %s",
+                    accountNumber, reservation.getReservationNumber(), reasonForFailure);
+            throw new IllegalOperationException(errorMessage);
+        }
+
+        // --- Update Common Reservation Properties ---
+        // These updates only proceed if the checks above pass
+        existingReservation.setPhysicalAddress(reservation.getPhysicalAddress());
+        existingReservation.setMailingAddress(reservation.getMailingAddress());
+        existingReservation.setReservationStart(reservation.getReservationStart());
+        existingReservation.setNights(reservation.getNights());
+        existingReservation.setBeds(reservation.getBeds());
+        existingReservation.setBedrooms(reservation.getBedrooms());
+        existingReservation.setBathrooms(reservation.getBathrooms());
+        existingReservation.setSquareFootage(reservation.getSquareFootage());
+        existingReservation.setStatus(reservation.getStatus());
+        existingReservation.setReservationType(reservation.getReservationType());
+
+        // --- Update Subclass-Specific Properties ---
+        if (existingReservation instanceof Cabin_Reservation && reservation instanceof Cabin_Reservation) {
+            Cabin_Reservation existingCabin = (Cabin_Reservation) existingReservation;
+            Cabin_Reservation newCabinDetails = (Cabin_Reservation) reservation;
+            existingCabin.setHasKitchen(newCabinDetails.isHasKitchen());
+            existingCabin.setHasLoft(newCabinDetails.isHasLoft());
+            System.out.println("  Updated Cabin_Reservation specific details.");
+        } else if (existingReservation instanceof Hotel_Reservation && reservation instanceof Hotel_Reservation) {
+            Hotel_Reservation existingHotel = (Hotel_Reservation) existingReservation;
+            Hotel_Reservation newHotelDetails = (Hotel_Reservation) reservation;
+            existingHotel.isHasKitchenette();
+            System.out.println("  Updated Hotel_Reservation specific details.");
+        } else if (existingReservation instanceof House_Reservation && reservation instanceof House_Reservation) {
+            House_Reservation existingHouse = (House_Reservation) existingReservation;
+            House_Reservation newHouseDetails = (House_Reservation) reservation;
+            existingHouse.setFloors(newHouseDetails.getFloors());
+            System.out.println("  Updated House_Reservation specific details.");
+        } else {
+            System.out.println("  Warning: Type mismatch or unhandled reservation type for update. Existing: " + existingReservation.getClass().getSimpleName() + ", New: " + reservation.getClass().getSimpleName());
+        }
+
+        accountReservations.set(indexOfExistingReservation, existingReservation);
+        account.setReservations(accountReservations);
+
+        System.out.println("Reservation " + reservation.getReservationNumber() + " for account " + accountNumber + " changed successfully.");
+
+        generateXmlFiles();
+        return true;
+    }
 
 
 }

@@ -230,7 +230,7 @@ public abstract class Reservation {
         this.bathrooms = bathrooms;
     }
 
-    public void setSquareFootage(int squareFootage) {
+    public void setSquareFootage(double squareFootage) {
         this.squareFootage = squareFootage;
     }
 

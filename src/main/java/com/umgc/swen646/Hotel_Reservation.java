@@ -92,4 +92,6 @@ public class Hotel_Reservation extends Reservation {
                 "<flatFee>" + flatFee + "</flatFee>" +
                 "</hotel>";
     }
+
+
 }
