@@ -306,8 +306,6 @@ public class Manager {
         }
     }
 
-
-
     /**
      * Prints out accounts associated to a specific Person's account#
      */
@@ -355,14 +353,47 @@ public class Manager {
     /**
      * finds the Account in list of accounts and updates attribute values
      */
-    public void updateAccount(ReservationStatus reservationStatus) {
-        // TODO implement here
+    public boolean updateAccount(UpdateAccountBuilder builder) {
+        if (builder.getAccountNumber() == null || builder.getAccountNumber().trim().isEmpty()) {
+            throw new NullPointerException("Error: Account number cannot be null or empty for update operation.");
+        }
+
+        Account existingAccount = getAccount(builder.getAccountNumber());
+
+        if (existingAccount != null) {
+            // Update mailing address if provided by the builder
+            if (builder.getNewMailingAddress() != null) {
+                existingAccount.setMailingAddress(builder.getNewMailingAddress());
+            }
+            // Update phone number if provided by the builder
+            if (builder.getNewPhoneNumber() != null) {
+                existingAccount.setPhoneNumber(builder.getNewPhoneNumber());
+            }
+            // Update email if provided by the builder
+            // Note: I'm assuming 'newEmail' was intended for Account update,
+            // as 'newPhysicalAddress' is a Reservation field and not directly part of Account.
+            if (builder.getNewEmail() != null) {
+                existingAccount.setEmail(builder.getNewEmail());
+            }
+
+            System.out.println("Account " + builder.getNewPhoneNumber() + " updated successfully in memory.");
+
+            // Persist changes to disk by regenerating XML files
+            // This will regenerate all account and reservation files to reflect the change.
+            // For a large system, consider a more granular save mechanism if performance is critical.
+            generateXmlFiles();
+
+            return true;
+        } else {
+            System.out.println("Account " + builder.getAccountNumber() + " not found. Update failed.");
+            return false;
+        }
     }
 
     /**
      * Adds a reservation object to the list of reservation objects
      */
-    public void addReservation(String accountNumber, Reservation reservation) {
+    public void addReservation(String accountNumber, String reservationNumber) {
         // TODO implement here
     }
 
