@@ -1,9 +1,15 @@
 package com.umgc.swen646;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import java.io.*;
+import java.text.ParseException;
 import java.util.*;
 
 /**
@@ -99,8 +105,208 @@ public class Manager {
      * method which loads all accounts' data once the Manager class is instantiated, which occurs upon program start
      */
     public void loadData() {
-        // TODO implement here
+        System.out.println("Starting data load from: " + DATA_DIRECTORY);
+        File baseDir = new File(DATA_DIRECTORY);
+
+        if (!baseDir.exists() || !baseDir.isDirectory()) {
+            System.out.println("Data directory does not exist or is not a directory: " + DATA_DIRECTORY);
+            return;
+        }
+
+        this.accounts.clear();
+        this.reservations.clear();
+        System.out.println("Cleared existing accounts and reservations in memory.");
+
+        File[] accountDirs = baseDir.listFiles(File::isDirectory);
+
+        if (accountDirs == null || accountDirs.length == 0) {
+            System.out.println("No account directories found in " + DATA_DIRECTORY + ". No data to load.");
+            return;
+        }
+
+        DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder dBuilder;
+        try {
+            dBuilder = dbFactory.newDocumentBuilder();
+            System.out.println("XML DocumentBuilder initialized successfully.");
+        } catch (ParserConfigurationException e) {
+            System.err.println("Error configuring XML parser: " + e.getMessage());
+            e.printStackTrace();
+            return;
+        }
+
+        for (File accountDir : accountDirs) {
+            String accountNumber = accountDir.getName();
+            File accountFile = new File(accountDir, "acc-" + accountNumber + ".xml");
+
+            if (!accountFile.exists()) {
+                System.out.println("Account XML file 'acc-" + accountNumber + ".xml' not found in " + accountDir.getName() + ". Skipping this account.");
+                continue;
+            }
+
+            try {
+                // 1. Parse Account XML File
+                System.out.println("Attempting to parse account file: " + accountFile.getAbsolutePath());
+                Document accountDoc = dBuilder.parse(accountFile);
+                accountDoc.getDocumentElement().normalize();
+
+                String mailingAddress = getTagValue(accountDoc, "mailingAddress");
+                String phoneNumber = getTagValue(accountDoc, "phoneNumber");
+                String email = getTagValue(accountDoc, "email");
+
+                // Create a new Account object
+                Account account = new Account(accountNumber, mailingAddress, phoneNumber, email, null);
+                System.out.println("Successfully loaded basic Account details: " + account.getAccountNumber());
+
+                // Temporary list to hold reservations for this specific account
+                List<Reservation> tempReservationsForAccount = new ArrayList<>();
+
+                // 2. Discover and Parse individual Reservation XML files within this account's directory
+                File[] reservationFiles = accountDir.listFiles((dir, name) -> name.startsWith("res-") && name.endsWith(".xml"));
+
+                if (reservationFiles != null) {
+                    System.out.println("  Found " + reservationFiles.length + " reservation XML files in " + accountDir.getName() + " directory.");
+                    for (File resFile : reservationFiles) {
+                        try {
+                            Reservation reservation = parseReservationXml(resFile, dBuilder);
+                            if (reservation != null) {
+                                tempReservationsForAccount.add(reservation); // Add to temp list for this account
+                                this.reservations.add(reservation); // Also add to manager's flat list if needed
+                                System.out.println("  Parsed Reservation: '" + reservation.getReservationNumber() + "' (Type: " + reservation.getClass().getSimpleName() + ")");
+                            }
+                        } catch (IOException | SAXException innerE) {
+                            System.err.println("Error parsing reservation file '" + resFile.getName() + "': " + innerE.getMessage());
+                            innerE.printStackTrace();
+                        } catch (ParseException e) {
+                            throw new RuntimeException(e);
+                        }
+                    }
+                } else {
+                    System.out.println("  No reservation XML files found for account " + accountNumber + ".");
+                }
+
+                // Set the collected reservations to the Account object
+                account.setReservations(tempReservationsForAccount);
+                System.out.println("  Attached " + tempReservationsForAccount.size() + " reservations to Account: '" + account.getAccountNumber() + "'");
+
+
+                this.accounts.add(account);
+                System.out.println("Account '" + account.getAccountNumber() + "' loaded successfully with " + account.getReservations().size() + " reservations.");
+
+            } catch (IOException | SAXException e) {
+                System.err.println("Error parsing account file '" + accountFile.getName() + "': " + e.getMessage());
+                e.printStackTrace();
+            }
+        }
+        System.out.println("Data loading complete. Total accounts loaded: " + this.accounts.size());
+        displayLoadedData();
     }
+
+    /**
+     * Prints out all accounts currently loaded in memory and their associated reservations.
+     * This provides a summary of the data successfully loaded by `loadData()`.
+     */
+    public void displayLoadedData() {
+        System.out.println("\n--- Displaying Currently Loaded Data ---");
+        if (this.accounts.isEmpty()) {
+            System.out.println("No accounts currently loaded in memory.");
+            return;
+        }
+
+        for (Account account : this.accounts) {
+            System.out.println(account); // Uses Account's toString() for primary details
+            if (!account.getReservations().isEmpty()) {
+                System.out.println("  Reservations for " + account.getAccountNumber() + ":");
+                for (Reservation res : account.getReservations()) {
+                    // Prints key details of each reservation for quick overview, including its concrete type
+                    System.out.println("    - Num: " + res.getReservationNumber() +
+                            ", Type: " + res.getClass().getSimpleName() +
+                            ", Status: " + res.getStatus() +
+                            ", Check-in: " + Reservation.DATE_FORMATTER.format(res.getReservationStart()) +
+                            ", Beds: " + res.getBeds() +
+                            ", Price/Night: " + String.format("%.2f", res.pricePerNight()));
+                    // You can add more specific details here based on reservation type if desired
+                }
+            } else {
+                System.out.println("  No reservations found for this account.");
+            }
+            System.out.println(); // Blank line for readability between accounts
+        }
+        System.out.println("----------------------------------------\n");
+    }
+
+    /**
+     * Helper method to extract the text content of the first occurrence of a specified tag from an XML Document.
+     * @param doc The XML Document from which to extract the tag value.
+     * @param tagName The name of the XML tag whose text content is to be extracted.
+     * @return The text content of the tag, or an empty string if the tag is not found or is empty.
+     */
+    private String getTagValue(Document doc, String tagName) {
+        NodeList nl = doc.getElementsByTagName(tagName);
+        if (nl != null && nl.getLength() > 0) {
+            Node node = nl.item(0);
+            if (node.getNodeType() == Node.ELEMENT_NODE) {
+                return node.getTextContent();
+            }
+        }
+        return ""; // Return empty string if tag not found or has no content
+    }
+
+    /**
+     * Helper method to parse a single Reservation XML file into a Reservation object.
+     * This method assumes a specific XML structure for reservation files as generated by `Reservation.toString()`.
+     * @param resFile The File object representing the reservation XML file.
+     * @param dBuilder The DocumentBuilder instance to use for parsing.
+     * @return A populated Reservation object if parsing is successful, otherwise null.
+     * @throws IOException If an I/O error occurs during file reading.
+     * @throws SAXException If any parse error or warning occurs.
+     */
+    private Reservation parseReservationXml(File resFile, DocumentBuilder dBuilder) throws IOException, SAXException, ParseException {
+        System.out.println("  Parsing reservation file: " + resFile.getName());
+        Document resDoc = dBuilder.parse(resFile);
+        resDoc.getDocumentElement().normalize();
+
+        String rootElementName = resDoc.getDocumentElement().getTagName();
+        System.out.println("  Reservation XML Root Element: " + rootElementName);
+
+        String accountNumber = getTagValue(resDoc, "accountNumber");
+        String reservationNumber = getTagValue(resDoc, "reservationNumber");
+        String physicalAddress = getTagValue(resDoc, "physicalAddress");
+        String mailingAddress = getTagValue(resDoc, "mailingAddress");
+        Date reservationStart = Reservation.DATE_FORMATTER.parse(getTagValue(resDoc, "reservationStart"));
+        int nights = Integer.parseInt(getTagValue(resDoc, "nights"));
+        int beds = Integer.parseInt(getTagValue(resDoc, "beds"));
+        int bedrooms = Integer.parseInt(getTagValue(resDoc, "bedrooms"));
+        int bathrooms = Integer.parseInt(getTagValue(resDoc, "bathrooms"));
+        double squareFootage = Double.parseDouble(getTagValue(resDoc, "squareFootage"));
+        ReservationStatus status = ReservationStatus.valueOf(getTagValue(resDoc, "status").toUpperCase());
+        String reservationType = getTagValue(resDoc, "reservationType");
+
+
+        switch (rootElementName) {
+            case "cabinReservation":
+                boolean hasKitchen = Boolean.parseBoolean(getTagValue(resDoc, "hasKitchen"));
+                boolean hasLoft = Boolean.parseBoolean(getTagValue(resDoc, "hasLoft"));
+                return new Cabin_Reservation(0, accountNumber, reservationNumber, physicalAddress, mailingAddress,
+                        reservationStart, nights, beds, bedrooms, bathrooms, squareFootage,
+                        status, reservationType, hasKitchen, hasLoft);
+            case "hotelReservation":
+                boolean hasKitchenette = Boolean.parseBoolean(getTagValue(resDoc, "hasKitchenette"));
+                return new Hotel_Reservation(accountNumber, reservationNumber, physicalAddress, mailingAddress,
+                        reservationStart, nights, beds, bedrooms, bathrooms, squareFootage,
+                        status, reservationType, hasKitchenette);
+            case "houseReservation":
+                int floors = Integer.parseInt(getTagValue(resDoc, "floors"));
+                return new House_Reservation(0, accountNumber, reservationNumber, physicalAddress, mailingAddress,
+                        reservationStart, nights, beds, bedrooms, bathrooms, squareFootage,
+                        status, reservationType, floors);
+            default:
+                System.err.println("  Unknown reservation type (root element): " + rootElementName + " in file: " + resFile.getName());
+                return null;
+        }
+    }
+
+
 
     /**
      * Prints out accounts associated to a specific Person's account#
