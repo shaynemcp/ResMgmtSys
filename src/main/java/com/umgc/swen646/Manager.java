@@ -393,22 +393,190 @@ public class Manager {
     /**
      * Adds a reservation object to the list of reservation objects
      */
-    public void addReservation(String accountNumber, String reservationNumber) {
-        // TODO implement here
+    public void addReservation(String accountNumber, Reservation reservation) {
+        Account account = getAccount(accountNumber);
+        if (account != null) {
+            List<Reservation> currentReservations = new ArrayList<>(account.getReservations()); // Get a mutable copy
+            currentReservations.add(reservation);
+            account.setReservations(currentReservations); // Set the updated list back
+
+            this.reservations.add(reservation); // Add to Manager's flat list
+            System.out.println("Reservation " + reservation.getReservationNumber() + " added to account " + accountNumber + " in memory.");
+        } else {
+            System.out.println("Account " + accountNumber + " not found. Cannot add reservation.");
+        }
     }
+
+    /**Creates a new Reservation for a given Account Number & adds to the list of reservation objects */
+    public boolean createReservation(String accountNumber, String reservationNumber, String physicalAddress,
+                                     String mailingAddress, Date reservationStart, int nights, int beds,
+                                     int bedrooms, int bathrooms, double squareFootage, ReservationStatus status,
+                                     String reservationType, Boolean hasKitchen, Boolean hasLoft,
+                                     Boolean hasKitchenette, Integer floors) {
+
+        // Validate mandatory parameters
+        if (accountNumber == null || accountNumber.trim().isEmpty()) {
+            throw new NullPointerException("Account number cannot be null or empty.");
+        }
+        if (reservationNumber == null || reservationNumber.trim().isEmpty()) {
+            throw new NullPointerException("Reservation number cannot be null or empty.");
+        }
+        if (physicalAddress == null || physicalAddress.trim().isEmpty()) {
+            throw new NullPointerException("Physical address cannot be null or empty.");
+        }
+        if (mailingAddress == null || mailingAddress.trim().isEmpty()) {
+            throw new NullPointerException("Mailing address cannot be null or empty.");
+        }
+        if (reservationStart == null) {
+            throw new NullPointerException("Reservation start date cannot be null.");
+        }
+        if (reservationType == null || reservationType.trim().isEmpty()) {
+            throw new NullPointerException("Reservation type cannot be null or empty.");
+        }
+        if (status == null) {
+            throw new NullPointerException("Reservation status cannot be null.");
+        }
+
+
+        // Ensure the account exists
+        Account targetAccount = getAccount(accountNumber);
+        if (targetAccount == null) {
+            System.out.println("Account " + accountNumber + " not found. Cannot create reservation " + reservationNumber + ".");
+            return false;
+        }
+
+        // Check for duplicate reservation number within this account (or globally if reservation numbers are unique across accounts)
+        // For simplicity, checking within the target account. If reservation numbers are globally unique,
+        // you'd need a broader check.
+        for (Reservation res : targetAccount.getReservations()) {
+            if (res.getReservationNumber().equals(reservationNumber)) {
+                System.out.println("Reservation with number " + reservationNumber + " already exists for account " + accountNumber + ".");
+                return false;
+            }
+        }
+
+
+        Reservation newReservation;
+        // Determine the type of reservation and instantiate the correct subclass
+        switch (reservationType.toLowerCase()) {
+            case "cabin":
+                // Default optional boolean parameters to false if null is passed
+                boolean finalHasKitchen = (hasKitchen != null) ? hasKitchen : false;
+                boolean finalHasLoft = (hasLoft != null) ? hasLoft : false;
+                newReservation = new Cabin_Reservation(
+                        0, // id - assuming 0 for new creation as used in other constructors
+                        accountNumber,
+                        reservationNumber,
+                        physicalAddress,
+                        mailingAddress,
+                        reservationStart,
+                        nights,
+                        beds,
+                        bedrooms,
+                        bathrooms,
+                        squareFootage,
+                        status,
+                        reservationType,
+                        finalHasKitchen,
+                        finalHasLoft
+                );
+                break;
+            case "hotel":
+                // Default optional boolean parameter to false if null is passed
+                boolean finalHasKitchenette = (hasKitchenette != null) ? hasKitchenette : false;
+                newReservation = new Hotel_Reservation(
+                        accountNumber,
+                        reservationNumber,
+                        physicalAddress,
+                        mailingAddress,
+                        reservationStart,
+                        nights,
+                        beds,
+                        bedrooms,
+                        bathrooms,
+                        squareFootage,
+                        status,
+                        reservationType,
+                        finalHasKitchenette
+                );
+                break;
+            case "house":
+                // Default optional integer parameter to 0 if null is passed
+                int finalFloors = (floors != null) ? floors : 0;
+                newReservation = new House_Reservation(
+                        0, // id - assuming 0 for new creation
+                        accountNumber,
+                        reservationNumber,
+                        physicalAddress,
+                        mailingAddress,
+                        reservationStart,
+                        nights,
+                        beds,
+                        bedrooms,
+                        bathrooms,
+                        squareFootage,
+                        status,
+                        reservationType,
+                        finalFloors
+                );
+                break;
+            default:
+                System.err.println("Unknown reservation type: " + reservationType + ". Reservation not created.");
+                throw new IllegalArgumentException("Unknown reservation type: " + reservationType);
+        }
+
+        // Add the newly created reservation to the account's list
+        this.addReservation(accountNumber, newReservation);
+        System.out.println("Successfully created and added " + reservationType + " reservation " + reservationNumber + " to account " + accountNumber + ".");
+
+        // Persist the changes to disk
+        generateXmlFiles();
+        return true;
+    }
+
 
     /**
      * Finds the Reservation with the associated accountNumber & updates the value for reservationStatus to completed status
      */
-    public void completeReservation(String accountNumber, String reservationNumber, ReservationStatus reservationStatus) {
-        // TODO implement here
+    public boolean completeReservation(String accountNumber, String reservationNumber) {
+        Account account = getAccount(accountNumber);
+        if (account == null) {
+            System.out.println("Account " + accountNumber + " not found. Cannot complete reservation " + reservationNumber + ".");
+            return false;
+        }
+
+        for (Reservation res : account.getReservations()) {
+            if (res.getReservationNumber().equals(reservationNumber)) {
+                res.setStatus(ReservationStatus.COMPLETED);
+                System.out.println("Reservation " + reservationNumber + " for account " + accountNumber + " marked as COMPLETED.");
+                generateXmlFiles(); // Persist the change
+                return true;
+            }
+        }
+        System.out.println("Reservation " + reservationNumber + " not found for account " + accountNumber + ". Cannot complete.");
+        return false;
     }
 
     /**
      * Finds the Reservation with the associated accountNumber & updates the value for reservationStatus to cancelled status
      */
-    public void cancelReservation(String accountNumber, String reservationNumber) {
-        // TODO implement here
+    public boolean cancelReservation(String accountNumber, String reservationNumber) {
+        Account account = getAccount(accountNumber);
+        if (account == null) {
+            System.out.println("Account " + accountNumber + " not found. Cannot cancel reservation " + reservationNumber + ".");
+            return false;
+        }
+
+        for (Reservation res : account.getReservations()) {
+            if (res.getReservationNumber().equals(reservationNumber)) {
+                res.setStatus(ReservationStatus.CANCELLED);
+                System.out.println("Reservation " + reservationNumber + " for account " + accountNumber + " marked as CANCELLED.");
+                generateXmlFiles(); // Persist the change
+                return true;
+            }
+        }
+        System.out.println("Reservation " + reservationNumber + " not found for account " + accountNumber + ". Cannot cancel.");
+        return false;
     }
 
     /**

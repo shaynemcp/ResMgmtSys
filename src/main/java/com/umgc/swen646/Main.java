@@ -1,5 +1,6 @@
 package com.umgc.swen646;
 
+import java.time.chrono.ChronoLocalDate;
 import java.util.Date;
 
 
@@ -40,8 +41,12 @@ public class Main {
         Manager manager = new Manager();
         manager.loadData();
         manager.updateAccount(new UpdateAccountBuilder("ac-100000000").build().withNewEmail("newEmailExample@email.com"));
+        manager.createReservation("ac-100000000", "res-0000000001", "456 Reservation Rd, Minnesota, USA",
+                "456 Reservation Rd, Minnesota, USA", new Date(), 7, 4, 4,4, 3000,
+                ReservationStatus.PENDING, "House", true, false, false, 3);
+        manager.createReservation("ac-100000000", "res-0000000002", "456 Reservation Rd, Minnesota, USA",
+                "700 Reservation Rd, Minnesota, USA", new Date(), 2, 4, 4,4, 3000,
+                ReservationStatus.PENDING, "House", true, true, true, 3);
         manager.displayLoadedData();
-
-
     }
 }
