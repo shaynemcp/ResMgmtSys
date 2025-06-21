@@ -4,9 +4,9 @@ import java.io.File;
 import java.util.*;
 
 /**
- * Accounts store reservations for clients, loaded by a com.umgc.swen646.Manager upon program start, identified by a UI of "ac-" & 9 characters which cannot be changed
+ * Accounts store reservations for clients, loaded by a Manager upon program start, identified by a UI of "ac-" & 9 characters which cannot be changed
  * They hold information in attributes: [mailing address, list of reservations, email address and phone #]
- * Accounts are updated by a com.umgc.swen646.Manager, and once added cannot be deleted
+ * Accounts are updated by a Manager, and once added cannot be deleted
  */
 public class Account{
 
@@ -18,11 +18,8 @@ public class Account{
         this.reservations = reservations;
     }
 
-
-
-
     /**
-     * com.umgc.swen646.Account# for an account, initialized @ value =-99 until reservation is updated
+     * Account# for an account, initialized @ value =-99 until reservation is updated
      */
     private String accountNumber;
 
@@ -47,7 +44,7 @@ public class Account{
     private List<Reservation> reservations;
 
     /**
-     * Loads XML/JSON from local file & converts to com.umgc.swen646.Account Object
+     * Loads XML/JSON from local file & converts to Account Object
      */
 //    public Document loadFromFile(String filePath) throws IOException, SAXException, ParserConfigurationException {
 
@@ -102,7 +99,7 @@ public class Account{
     }
 
     /**
-     * Formats and return's com.umgc.swen646.Account data as output for the user to read
+     * Formats and return's Account data as output for the user to read
      */
     @Override
     public String toString() {
