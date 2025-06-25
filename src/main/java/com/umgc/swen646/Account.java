@@ -49,13 +49,6 @@ public class Account{
 //    public Document loadFromFile(String filePath) throws IOException, SAXException, ParserConfigurationException {
 
     /**
-     * Updates the account to data passed through params to local text file in XML/JSON
-     */
-    public void saveToFile() {
-        // TODO implement here
-    }
-
-    /**
      * GETTERS & SETTERS
     */
     public String getAccountNumber() {

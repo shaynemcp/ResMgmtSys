@@ -1,4 +1,4 @@
-package com.umgc.swen646;
+package com.umgc.swen646.excpetions;
 
 
 public class SameHotelReservationException extends RuntimeException{

@@ -1,7 +1,8 @@
 package com.umgc.swen646;
 
-public class Person {
+import java.util.List;
 
+public class Person {
     String name;
 
     Person(String name) {

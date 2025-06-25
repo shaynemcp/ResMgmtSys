@@ -1,6 +1,7 @@
 package com.umgc.swen646;
 
-import org.glassfish.jaxb.core.v2.TODO;
+import com.umgc.swen646.excpetions.IllegalOperationException;
+import com.umgc.swen646.excpetions.SameAccountException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -33,10 +34,10 @@ public class Manager {
         this.accounts = new ArrayList<>();
     }
 
-        /**
-         * Generates XML files for all accounts and their associated reservations
-         */
-        public void generateXmlFiles() {
+    /**
+     * Generates XML files for all accounts and their associated reservations
+     */
+    public void generateXmlFiles() {
             System.out.println("Generating XML files in: " + DATA_DIRECTORY);
             File baseDir = new File(DATA_DIRECTORY);
             if (!baseDir.exists()) {
