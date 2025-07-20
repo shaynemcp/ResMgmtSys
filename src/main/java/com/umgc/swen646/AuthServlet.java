@@ -102,8 +102,14 @@ public class AuthServlet extends HttpServlet {
             } else {
                 boolean valid = MFAUtil.verifyCode(user.getMfaSecret(), code);
                 if (valid) {
+                    // Generate JWT token after successful MFA verification
+                    String token = JWTUtil.generateToken(user.getId(), user.getUsername());
+                    
                     resp.setStatus(HttpServletResponse.SC_OK);
                     jsonResponse.put("success", true);
+                    jsonResponse.put("token", token);
+                    jsonResponse.put("userId", user.getId());
+                    jsonResponse.put("username", user.getUsername());
                 } else {
                     resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                     jsonResponse.put("success", false);
