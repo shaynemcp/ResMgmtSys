@@ -289,7 +289,7 @@ public class Manager {
             case "cabinReservation":
                 boolean hasKitchen = Boolean.parseBoolean(getTagValue(resDoc, "hasKitchen"));
                 boolean hasLoft = Boolean.parseBoolean(getTagValue(resDoc, "hasLoft"));
-                return new Cabin_Reservation(0, accountNumber, reservationNumber, physicalAddress, mailingAddress,
+                return new Cabin_Reservation( accountNumber, reservationNumber, physicalAddress, mailingAddress,
                         reservationStart, nights, beds, bedrooms, bathrooms, squareFootage,
                         status, reservationType, hasKitchen, hasLoft);
             case "hotelReservation":
@@ -491,7 +491,6 @@ public class Manager {
                 boolean finalHasKitchen = (hasKitchen != null) ? hasKitchen : false;
                 boolean finalHasLoft = (hasLoft != null) ? hasLoft : false;
                 newReservation = new Cabin_Reservation(
-                        0, // id - assuming 0 for new creation as used in other constructors
                         accountNumber,
                         reservationNumber,
                         physicalAddress,

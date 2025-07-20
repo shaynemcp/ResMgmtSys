@@ -1,0 +1,142 @@
+@startuml
+' PlantUML ERD for the iBookings Accommodation Reservation System
+' Generated from RDD Section 3: Functional Requirements
+
+!theme materia
+skinparam linetype ortho
+skinparam shadowing false
+skinparam roundCorner 5
+skinparam stereotype {
+  FontColor #FFFFFF
+  BackgroundColor #424242
+}
+
+title "iBookings Accommodation Reservation System ERD"
+
+' -------------------
+' Entity Definitions
+' -------------------
+
+' Represents a customer who can make reservations.
+entity "Account" as account {
+  + **AccountNumber** : Varchar {PK}
+  ..
+  MailingAddress : Varchar
+  PhoneNumber : Varchar
+  Email : Varchar
+}
+
+' Represents a general booking made by a customer.
+entity "Reservation" as reservation {
+  + **ReservationNumber** : Varchar {PK}
+  ..
+  PhysicalAddress : Varchar
+  ReservationStartDate : Date
+  Nights : int
+  Bedrooms : int
+  Beds : int
+  Bathrooms : int
+  SquareFootage : double
+  Status : Varchar  ' (Pending, Completed, Cancelled)
+  ..
+  # AccountNumber : Varchar {FK}
+}
+
+' Specialized entity for Hotel reservations.
+entity "Hotel_Reservation" as hotel {
+  + **HotelReservationID** : int {PK}
+  ..
+  HasKitchenette : boolean
+  PricePerNight : double
+  ..
+  # ReservationNumber : Varchar {FK}
+}
+
+' Specialized entity for Cabin reservations.
+entity "Cabin_Reservation" as cabin {
+  + **CabinReservationID** : int {PK}
+  ..
+  HasKitchen : boolean
+  HasLoft : boolean
+  PricePerNight : double
+  ..
+  # ReservationNumber : Varchar {FK}
+}
+
+' Specialized entity for House reservations.
+entity "House_Reservation" as house {
+  + **HouseReservationID** : int {PK}
+  ..
+  Floors : int
+  PricePerNight : double
+  ..
+  # ReservationNumber : Varchar {FK}
+}
+
+' ------------------------
+' Relationship Definitions
+' ------------------------
+
+' Cardinality Rule: An Account can have zero or more Reservations.
+' A Reservation must be associated with exactly one Account.
+account ||--|{ reservation : "makes"
+
+' Cardinality Rule: A Reservation is for exactly one specific type of accommodation.
+' This is modeled as three optional one-to-one relationships.
+' A Reservation is linked to zero-or-one of each subtype.
+' A subtype record is linked to exactly one Reservation.
+' Note: A real database would enforce the "exactly one" exclusivity with a trigger or check constraint.
+reservation |o--|| hotel : "is a"
+reservation |o--|| cabin : "is a"
+reservation |o--|| house : "is a"
+
+' PlantUML Class Diagram for iBookings Exception Handling
+
+!theme materia
+skinparam classAttributeIconSize 0
+skinparam shadowing false
+skinparam roundCorner 5
+
+' Style for the exception classes
+skinparam class {
+    StereotypeFontColor #FFFFFF
+    StereotypeBackgroundColor #D32F2F
+    BorderColor #424242
+    ArrowColor #424242
+}
+
+title "iBookings Exception Class Diagram"
+
+' --- Base Exception Class (from Java standard library) ---
+' Define the standard Java exception class that our custom exceptions will inherit from.
+class "java.lang.RuntimeException" as RuntimeException
+
+' --- Custom Exception Classes ---
+' Use the 'exception' keyword to clearly denote these as exception classes.
+exception SameAccountException {
+  + SameAccountException(accountNumber: String)
+}
+
+exception IllegalOperationException {
+  + IllegalOperationException(message: String)
+}
+
+' --- Class that throws the exceptions ---
+' Only showing relevant methods for clarity.
+class Manager {
+  + addAccount(account: Account)
+  + changeReservation(accountNumber: String, reservation: Reservation)
+}
+
+' --- Define Relationships ---
+
+' Inheritance: Both custom exceptions extend RuntimeException.
+RuntimeException <|-- SameAccountException
+RuntimeException <|-- IllegalOperationException
+
+' Dependency: The Manager class "throws" or "uses" these exceptions.
+' The dashed arrow indicates a dependency relationship.
+Manager ..> SameAccountException : <<throws>>
+Manager ..> IllegalOperationException : <<throws>>
+
+@enduml
