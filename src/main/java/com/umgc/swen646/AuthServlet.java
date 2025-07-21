@@ -41,10 +41,11 @@ public class AuthServlet extends HttpServlet {
     private void handleRegister(JSONObject jsonRequest, JSONObject jsonResponse, HttpServletResponse resp) throws IOException {
         String username = jsonRequest.optString("username");
         String password = jsonRequest.optString("password");
+        String email = jsonRequest.optString("email");
         String mfaSecret = jsonRequest.optString("mfaSecret", null);
-        if (username.isEmpty() || password.isEmpty()) {
+        if (username.isEmpty() || password.isEmpty() || email.isEmpty()) {
             resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            jsonResponse.put("error", "Username and password are required");
+            jsonResponse.put("error", "Username, password, and email are required");
         } else if (userDAO.findByUsername(username) != null) {
             resp.setStatus(HttpServletResponse.SC_CONFLICT);
             jsonResponse.put("error", "Username already exists");
@@ -52,7 +53,7 @@ public class AuthServlet extends HttpServlet {
             if (mfaSecret == null || mfaSecret.isEmpty()) {
                 mfaSecret = MFAUtil.generateSecret();
             }
-            boolean created = userDAO.createUser(username, password, mfaSecret);
+            boolean created = userDAO.createUser(username, password, mfaSecret, email);
             if (created) {
                 // Get the created user to generate JWT
                 User user = userDAO.findByUsername(username);
@@ -67,6 +68,7 @@ public class AuthServlet extends HttpServlet {
                     jsonResponse.put("token", token);
                     jsonResponse.put("userId", user.getId());
                     jsonResponse.put("username", user.getUsername());
+                    jsonResponse.put("email", user.getEmail());
                 } else {
                     resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
                     jsonResponse.put("error", "User created but could not retrieve user data");

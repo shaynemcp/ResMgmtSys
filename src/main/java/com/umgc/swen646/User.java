@@ -8,6 +8,7 @@ public class User {
     private String username;
     private String passwordHash;
     private String mfaSecret;
+    private String email;
 
     /**
      * No-argument constructor.
@@ -21,11 +22,12 @@ public class User {
      * @param passwordHash Hashed password
      * @param mfaSecret MFA secret for TOTP
      */
-    public User(Long id, String username, String passwordHash, String mfaSecret) {
+    public User(Long id, String username, String passwordHash, String mfaSecret, String email) {
         this.id = id;
         this.username = username;
         this.passwordHash = passwordHash;
         this.mfaSecret = mfaSecret;
+        this.email = email;
     }
 
     public Long getId() {
@@ -58,5 +60,12 @@ public class User {
 
     public void setMfaSecret(String mfaSecret) {
         this.mfaSecret = mfaSecret;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+    public void setEmail(String email) {
+        this.email = email;
     }
 } 

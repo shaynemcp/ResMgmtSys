@@ -14,7 +14,7 @@ public class UserDAO {
      * @return User object or null if not found
      */
     public User findByUsername(String username) {
-        String sql = "SELECT id, username, password_hash, mfa_secret FROM users WHERE username = ?";
+        String sql = "SELECT id, username, password_hash, mfa_secret, email FROM users WHERE username = ?";
         try (Connection conn = DBUtil.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, username);
@@ -24,7 +24,8 @@ public class UserDAO {
                     rs.getLong("id"),
                     rs.getString("username"),
                     rs.getString("password_hash"),
-                    rs.getString("mfa_secret")
+                    rs.getString("mfa_secret"),
+                    rs.getString("email")
                 );
             }
         } catch (SQLException e) {
@@ -40,14 +41,15 @@ public class UserDAO {
      * @param mfaSecret the MFA secret (nullable)
      * @return true if created successfully, false otherwise
      */
-    public boolean createUser(String username, String plainPassword, String mfaSecret) {
-        String sql = "INSERT INTO users (username, password_hash, mfa_secret) VALUES (?, ?, ?)";
-        String hashed = BCrypt.hashpw(plainPassword, BCrypt.gensalt());
+    public boolean createUser(String username, String plainPassword, String mfaSecret, String email) {
+        String sql = "INSERT INTO users (username, password_hash, mfa_secret, email) VALUES (?, ?, ?, ?)";
+        String hashed = org.mindrot.jbcrypt.BCrypt.hashpw(plainPassword, org.mindrot.jbcrypt.BCrypt.gensalt());
         try (Connection conn = DBUtil.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, username);
             stmt.setString(2, hashed);
             stmt.setString(3, mfaSecret);
+            stmt.setString(4, email);
             int rows = stmt.executeUpdate();
             System.out.println("User creation successful: " + rows + " rows affected");
             return rows == 1;
