@@ -44,7 +44,7 @@ function LoginPage() {
       });
       const data = await response.json();
       if (response.ok && data.token) {
-        localStorage.setItem('jwt', data.token);
+        sessionStorage.setItem('jwt', data.token);
         navigate('/account');
       } else {
         setError(data.error || 'Login failed. Please check your credentials.');

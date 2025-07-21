@@ -1,17 +1,6 @@
-import React from 'react';
-import { Container, Box, Card, CardContent, Typography, Grid, CardMedia, Button } from '@mui/material';
+import React, { useEffect, useState } from 'react';
+import { Container, Box, Card, CardContent, Typography, Grid, CardMedia, Button, CircularProgress, Alert } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-
-const sampleReservations = [
-  // Example: Uncomment to simulate having reservations
-  // {
-  //   id: 1,
-  //   name: 'My Lakeview Cabin',
-  //   location: 'Lake Tahoe, CA',
-  //   description: 'A cozy cabin with stunning lake views.',
-  //   image: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=400&q=80',
-  // },
-];
 
 const popularBookings = [
   {
@@ -46,19 +35,58 @@ const popularBookings = [
 
 function AccountPage() {
   const navigate = useNavigate();
-  const hasReservations = sampleReservations.length > 0;
+  const [reservations, setReservations] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    const fetchReservations = async () => {
+      setLoading(true);
+      setError('');
+      try {
+        const token = sessionStorage.getItem('jwt');
+        const response = await fetch('http://localhost:8080/resmgmtsys/api/reservations', {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        });
+        if (!response.ok) {
+          throw new Error('Failed to fetch reservations');
+        }
+        const data = await response.json();
+        setReservations(data.reservations || []);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchReservations();
+  }, []);
+
+  if (loading) {
+    return (
+      <Container maxWidth="md" sx={{ mt: 4 }}>
+        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: 200 }}>
+          <CircularProgress />
+        </Box>
+      </Container>
+    );
+  }
 
   return (
     <Container maxWidth="md" sx={{ mt: 4 }}>
       <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
         <Button variant="contained" color="primary" onClick={() => navigate('/')}>Start New Reservation</Button>
       </Box>
-      {hasReservations ? (
+      {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
+      {reservations.length > 0 ? (
         <>
           <Typography variant="h5" gutterBottom>My Reservations</Typography>
           <Grid container spacing={2}>
-            {sampleReservations.map((res) => (
-              <Grid item xs={12} sm={6} md={3} key={res.id}>
+            {reservations.map((res) => (
+              <Grid item key={res.id}>
                 <Card sx={{ height: '100%' }}>
                   <CardMedia
                     component="img"
@@ -93,7 +121,7 @@ function AccountPage() {
             </Typography>
             <Grid container spacing={2}>
               {popularBookings.map((booking) => (
-                <Grid item xs={12} sm={6} md={3} key={booking.id}>
+                <Grid item key={booking.id}>
                   <Card sx={{ height: '100%' }}>
                     <CardMedia
                       component="img"

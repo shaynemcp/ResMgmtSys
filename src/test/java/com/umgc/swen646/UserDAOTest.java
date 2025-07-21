@@ -9,6 +9,7 @@ public class UserDAOTest {
     private static final String TEST_USERNAME = "testuser_junit" + System.currentTimeMillis();
     private static final String TEST_PASSWORD = "TestPassword123!";
     private static final String TEST_MFA_SECRET = "TESTSECRET";
+    private static final String TEST_EMAIL = "testuser_junit" + System.currentTimeMillis() + "@example.com";
 
     @BeforeAll
     public static void setup() {
@@ -18,13 +19,14 @@ public class UserDAOTest {
     @Test
     @DisplayName("Test user registration (createUser)")
     public void testCreateUser() {
-        boolean created = userDAO.createUser(TEST_USERNAME, TEST_PASSWORD, TEST_MFA_SECRET);
+        boolean created = userDAO.createUser(TEST_USERNAME, TEST_PASSWORD, TEST_MFA_SECRET, TEST_EMAIL);
         assertTrue(created, "User should be created successfully");
         User user = userDAO.findByUsername(TEST_USERNAME);
         assertNotNull(user, "User should be found after creation");
         assertEquals(TEST_USERNAME, user.getUsername(), "Username should match");
         assertNotNull(user.getPasswordHash(), "Password hash should not be null");
         assertEquals(TEST_MFA_SECRET, user.getMfaSecret(), "MFA secret should match");
+        assertEquals(TEST_EMAIL, user.getEmail(), "Email should match");
     }
 
     @Test
@@ -32,11 +34,12 @@ public class UserDAOTest {
     public void testVerifyUser() {
         // Ensure user exists
         if (userDAO.findByUsername(TEST_USERNAME) == null) {
-            userDAO.createUser(TEST_USERNAME, TEST_PASSWORD, TEST_MFA_SECRET);
+            userDAO.createUser(TEST_USERNAME, TEST_PASSWORD, TEST_MFA_SECRET, TEST_EMAIL);
         }
         User user = userDAO.verifyUser(TEST_USERNAME, TEST_PASSWORD);
         assertNotNull(user, "User should be authenticated with correct password");
         assertEquals(TEST_USERNAME, user.getUsername(), "Authenticated username should match");
+        assertEquals(TEST_EMAIL, user.getEmail(), "Authenticated email should match");
     }
 
     @AfterAll
