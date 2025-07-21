@@ -54,9 +54,23 @@ public class AuthServlet extends HttpServlet {
             }
             boolean created = userDAO.createUser(username, password, mfaSecret);
             if (created) {
-                resp.setStatus(HttpServletResponse.SC_CREATED);
-                jsonResponse.put("success", true);
-                jsonResponse.put("mfaSecret", mfaSecret);
+                // Get the created user to generate JWT
+                User user = userDAO.findByUsername(username);
+                if (user != null) {
+                    // Generate JWT token for the newly registered user
+                    String token = JWTUtil.generateToken(user.getId(), user.getUsername());
+                    
+                    resp.setStatus(HttpServletResponse.SC_CREATED);
+                    jsonResponse.put("success", true);
+                    jsonResponse.put("message", "User registered successfully");
+                    jsonResponse.put("mfaSecret", mfaSecret);
+                    jsonResponse.put("token", token);
+                    jsonResponse.put("userId", user.getId());
+                    jsonResponse.put("username", user.getUsername());
+                } else {
+                    resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                    jsonResponse.put("error", "User created but could not retrieve user data");
+                }
             } else {
                 resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
                 jsonResponse.put("error", "Failed to create user");
