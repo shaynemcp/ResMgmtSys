@@ -16,6 +16,7 @@ import { Visibility, VisibilityOff, LockOutlined, Google } from '@mui/icons-mate
 import { GoogleLogin } from '@react-oauth/google';
 import CircularProgress from '@mui/material/CircularProgress';
 import { useNavigate } from 'react-router-dom';
+import { Link as RouterLink } from 'react-router-dom';
 
 const placeholderLogo = 'https://via.placeholder.com/80x80?text=Logo';
 
@@ -138,7 +139,7 @@ function LoginPage() {
               width="100%"
             />
             <Box sx={{ mt: 2, textAlign: 'center' }}>
-              <Link href="#" variant="body2">
+              <Link component={RouterLink} to="/register" variant="body2">
                 {"Don't have an account? Sign Up"}
               </Link>
             </Box>

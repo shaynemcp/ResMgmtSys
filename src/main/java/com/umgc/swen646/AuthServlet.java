@@ -18,8 +18,22 @@ import java.io.IOException;
 public class AuthServlet extends HttpServlet {
     private UserDAO userDAO = new UserDAO();
 
+    private void setCorsHeaders(HttpServletResponse resp) {
+        resp.setHeader("Access-Control-Allow-Origin", "http://localhost:3000");
+        resp.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+        resp.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+        resp.setHeader("Access-Control-Allow-Credentials", "true");
+    }
+
+    @Override
+    protected void doOptions(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        setCorsHeaders(resp);
+        resp.setStatus(HttpServletResponse.SC_OK);
+    }
+
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        setCorsHeaders(resp);
         resp.setContentType("application/json");
         String path = req.getServletPath();
         JSONObject jsonRequest = getJsonRequest(req);
